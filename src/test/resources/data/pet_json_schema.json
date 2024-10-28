@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "id": {},
+    "category": {},
+    "name": {
+      "type": "string"
+    },
+    "photoUrls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {},
+    "status": {}
+  },
+  "required": [
+    "name",
+    "photoUrls"
+  ]
+}
