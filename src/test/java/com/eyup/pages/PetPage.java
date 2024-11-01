@@ -3,6 +3,7 @@ package com.eyup.pages;
 import io.restassured.response.Response;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
@@ -15,22 +16,22 @@ public class PetPage {
     }
 
     public Response addPet(String petName, List<String> photoUrls) {
-        StringBuilder bodyBuilder = buildBody(petName, photoUrls);
-
         return given().baseUri(baseUrl)
                 .contentType("application/json")
-                .body(bodyBuilder.toString())
+                .body(buildBodyByMap(petName, photoUrls))
                 .when()
                 .post("/pet");
     }
 
     public Response addPetWithoutName(List<String> photoUrls) {
-        String name = "name";
-        StringBuilder bodyBuilder = buildBody(name, photoUrls);
-        bodyBuilder = new StringBuilder(bodyBuilder.toString().replace("name", ""));
+        String[] photoUrlsArray = photoUrls.stream().toArray(String[]::new);
+        Map<String, Object> body = Map.of(
+                "photoUrls", photoUrlsArray
+        );
+
         return given().baseUri(baseUrl)
                 .contentType("application/json")
-                .body(bodyBuilder.toString())
+                .body(body)
                 .when()
                 .post("/pet");
     }
@@ -54,11 +55,13 @@ public class PetPage {
 
     public Response updatePetWithoutPhotoUrls(Long petId, String petName) {
         Response response = getPetById(petId);
-        String body = response.getBody().asString();
-        String bodyUpdated = body.replace("photoUrls", "").replace("petnottobeupdated", petName);
+        Map<String, Object> body = Map.of(
+                "name", response.getBody().jsonPath().get("name")
+        );
+
         return given().baseUri(baseUrl)
                 .contentType("application/json")
-                .body(bodyUpdated)
+                .body(body)
                 .when()
                 .put("/pet");
     }
@@ -87,6 +90,15 @@ public class PetPage {
         bodyBuilder.append("  ]\n")
                 .append("}");
         return bodyBuilder;
+    }
+    private static Map buildBodyByMap(String petName, List<String> photoUrls) {
+        String[] photoUrlsArray = photoUrls.stream().toArray(String[]::new);
+        Map<String, Object> body = Map.of(
+                "name", petName,
+                "photoUrls", photoUrlsArray
+        );
+
+        return body;
     }
 
 }
